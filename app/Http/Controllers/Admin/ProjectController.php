@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\Type;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator as FacadesValidator;
@@ -18,7 +19,9 @@ class ProjectController extends Controller
     public function index()
     {
         $projects = Project::all();
-        return view('admin.projects.index', compact('projects'));
+        $types = Type::all();
+
+        return view('admin.projects.index', compact('projects', 'types'));
     }
 
     /**
@@ -28,7 +31,8 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        return view('admin.projects.create');
+        $types = Type::all();
+        return view('admin.projects.create', compact('types'));
     }
 
     /**
@@ -46,12 +50,8 @@ class ProjectController extends Controller
 
         $newProject = new Project();
 
-        $newProject->name = $formData['name'];
-        $newProject->thumb_preview = $formData['thumb_preview'];
-        $newProject->description = $formData['description'];
-        $newProject->link_repo = $formData['link_repo'];
-        $newProject->languages = $formData['languages'];
-        $newProject->frameworks = $formData['frameworks'];
+        $newProject->fill($formData);
+
 
         $newProject->slug = Str::slug($formData['name'], '-');
 
@@ -68,8 +68,8 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-
-        return view('admin.projects.show', compact('project'));
+        $types = Type::all();
+        return view('admin.projects.show', compact('project', 'types'));
     }
 
     /**
@@ -80,7 +80,8 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        return view('admin.projects.edit', compact('project'));
+        $types = Type::all();
+        return view('admin.projects.edit', compact('project', 'types'));
     }
 
     /**
@@ -96,6 +97,7 @@ class ProjectController extends Controller
 
 
         $formData = $request->all();
+
 
         $project->update($formData);
 
@@ -129,6 +131,7 @@ class ProjectController extends Controller
             'link_repo' => 'required',
             'languages' => 'required',
             'frameworks' => 'required',
+            'type_id' => 'nullable|exists:types,id',
         ], [
             'name.required' => 'Questo campo non può rimanere vuoto',
             'thumb_preview.required' => 'Questo campo non può rimanere vuoto',
@@ -136,6 +139,7 @@ class ProjectController extends Controller
             'link_repo.required' => 'Questo campo non può rimanere vuoto',
             'languages.required' => 'Questo campo non può rimanere vuoto',
             'frameworks.required' => 'Questo campo non può rimanere vuoto',
+            'type_id.exists' => 'Il type deve essere presente nel nostro sito',
 
         ])->validate();
 

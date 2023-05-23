@@ -6,6 +6,7 @@
         <li>
            Nome: {{$project->name}}
         </li>
+        <li>type: {{$project->type?->name}}</li>
         <li>
            Thumb preview: <br> <img src="{{$project->thumb_preview}}" alt=""> 
         </li>

@@ -19,6 +19,24 @@
     </div>
 
     <div class="mb-3">
+      <label for="type_id">Categoria</label>
+      <select name="type_id" id="type_id" class="form-select @error('type_id') is-invalid @enderror">
+
+        <option value="">Nessuna</option>
+
+        @foreach ($types as $item)
+            <option value="{{$item->id}}" {{$item->id == old('type_id', $project->type_id) ? 'selected' : ''}}>{{$item->name}}</option>
+        @endforeach
+
+      </select>
+      @error('type_id')
+        <div class="invalid-feedback">
+          {{$message}}
+        </div>
+      @enderror
+    </div>
+
+    <div class="mb-3">
       <label for="thumb_preview">Link immagine preview</label>
       <textarea class="form-control @error('thumb_preview') is-invalid @enderror" name="thumb_preview" id="thumb_preview">{{old('thumb_preview') ?? $project->thumb_preview}}</textarea>
       @error('thumb_preview')
