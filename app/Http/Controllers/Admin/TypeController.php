@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Type;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 
 class TypeController extends Controller
@@ -17,7 +19,6 @@ class TypeController extends Controller
     public function index()
     {
         $types = Type::all();
-        dd($types);
 
         return view('admin.types.index', compact('types'));
     }
@@ -29,7 +30,7 @@ class TypeController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.types.create');
     }
 
     /**
@@ -40,7 +41,17 @@ class TypeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $this->validation($request);
+
+        $formData = $request->all();
+
+        $newType = new Type();
+        $newType->fill($formData);
+        $newType->slug = Str::slug($formData['name'], '-');
+
+        $newType->save();
+
+        return redirect()->route('admin.types.show', $newType);
     }
 
     /**
@@ -51,7 +62,7 @@ class TypeController extends Controller
      */
     public function show(Type $type)
     {
-        //
+        return view('admin.types.show', compact('type'));
     }
 
     /**
@@ -62,7 +73,7 @@ class TypeController extends Controller
      */
     public function edit(Type $type)
     {
-        //
+        return view('admin.types.edit', compact('type'));
     }
 
     /**
@@ -74,7 +85,14 @@ class TypeController extends Controller
      */
     public function update(Request $request, Type $type)
     {
-        //
+        $this->validation($request);
+
+        $formData = $request->all();
+
+        $type->update($formData);
+        $type->save();
+
+        return redirect()->route('admin.types.show', $type);
     }
 
     /**
@@ -85,6 +103,22 @@ class TypeController extends Controller
      */
     public function destroy(Type $type)
     {
-        //
+        $type->delete();
+
+        return redirect()->route('admin.types.index');
+    }
+
+    private function validation($request)
+    {
+        $formData = $request->all();
+
+        $validator = Validator::make($formData, [
+            'name' => 'required',
+            'description' => 'required'
+        ], [
+            'name.required' => 'Questo campo non può rimanere vuoto',
+            'description.require' => 'Questo campo non può rimanere vuoto',
+        ])->validate();
+        return $validator;
     }
 }
